@@ -1,5 +1,6 @@
 .venv/
 .env
 bin/
+docs/
 __pycache__
 *.txt
