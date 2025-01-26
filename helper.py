@@ -1,7 +1,5 @@
-import json
-import time
-from configuraton import BASE_URL, CONFIG
 
+import json
 
 def example():
 	""" Example of hitting the api endpoint """
@@ -21,7 +19,7 @@ def openapi_spec():
 	with open("docs/json/openapi-1.23.json", "r+") as file:
 		return json.loads(file.read())
 
-def recursive_fun(spec:dict, target="name", result=None):
+def recursive_enchancement(spec:dict, target="name", result=None):
 	if isinstance(spec, dict): # sometimes its a list 
 		if result == None:
 			result = {}
@@ -48,21 +46,26 @@ def recursive_fun(spec:dict, target="name", result=None):
 						# result[key] = value
 
 			else:
-				result[key] = type(value).__name__
-			
+				result[key] = type(value).__name__			
 	return result
 
-def wrapper(method:str, endpoint:str): pass
+def recursive_fun(spec:dict, result=None, path=None):
+    if isinstance(spec, dict): # sometimes its a list 
+        if result == None:
+            result = {}
+        for key, value in spec.items():
+            if isinstance(value, dict):
+                result[key] = recursive_fun(value)
+            else:
+                result[key] = type(value).__name__
+    return result
 
 def main():
-	data = openapi_spec()
-	result = recursive_fun(data["paths"])
-	# print(json.dumps(result, indent=4))
-
-	# for item, value in result.items():
-	# 	print(item)
-	# with open("new_format.json", "w+") as file:
-		# file.write(json.dumps(result, indent=4))
+    data = openapi_spec()
+    result = recursive_fun(data["paths"])
+    for path in result.keys():
+        print(path)
+    # print(json.dumps(result, indent=4))
 
 if __name__ == "__main__":
-	main()
+    main()
