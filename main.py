@@ -1,68 +1,58 @@
-import json
-import time
-from configuraton import BASE_URL, CONFIG
+import csv, json, requests, time
+import datetime
+
+from configuraton import BASE_URL, CONFIG, OURA_FIRST_DAY
+from helper import recursive_fun
 
 
-def example():
-	""" Example of hitting the api endpoint """
-	url = 'https://api.ouraring.com/v2/usercollection/personal_info' 
-	params={ 
-		'start_date': '2021-11-01', 
-		'end_date': '2025-1-06' 
-	}
-	headers = { 
-		'Authorization': f'Bearer {CONFIG["token"]}' 
-	}   
-	response = requests.request('GET', url, headers=headers, params=params) 
-	print(response.text)
+def wrapper(method:str, endpoint:str, **kwargs): 
+	try: 
+		kwargs["params"]
+	except KeyError:
+		pass
 
-def openapi_spec():
-	""" Returns the openapi spec in a dict object """
-	with open("docs/json/openapi-1.23.json", "r+") as file:
-		return json.loads(file.read())
+	headers = { 'Authorization': f'Bearer {CONFIG["token"]}' }   
+	return  requests.request(method, BASE_URL + endpoint, headers=headers).json()
 
-def recursive_fun(spec:dict, target="name", result=None):
-	if isinstance(spec, dict): # sometimes its a list 
-		if result == None:
-			result = {}
-		for key, value in spec.items():
-			# if target == key:
-				# print(value)
-				# yield result =  
-				# print(json.dumps(value, indent=4))
-			if isinstance(value, dict):
-				result[key] = recursive_fun(value)
-				
-			elif isinstance(value, list):
-				for v in value:
-					if isinstance(v, dict):
-						keys = v.keys()
-						for key in keys:
-							# print(key)
-							value_of_key = v.get(key)
-							if isinstance(value_of_key, dict):
-								print(type(value_of_key))
-								print(value_of_key)
-								result[key] = recursive_fun(value_of_key)
-						# recursive_fun(v.get(v))
-						# result[key] = value
+def write_csv_from_dicts(data, header, filename):
+	header_found = None
+	with open(filename, "r") as csv_file: #
+		dict_writer = csv.DictWriter(csv_file, fieldnames=header)
+		try:
+			reader = csv.reader(csv_file)
+			row1 = next(reader)
+			print("Headers exist")
+			header_found = True
+		except:
+			header_found = False
 
-			else:
-				result[key] = type(value).__name__
-			
-	return result
+	with open(filename, "a") as csv_file:
+		dict_writer = csv.DictWriter(csv_file, fieldnames=header)
+		if not header_found:
+			dict_writer.writeheader()
+		for row in data:
+			dict_writer.writerow(row) 
 
-def wrapper(method:str, endpoint:str): pass
+def daily_cardiovascular_age():
+	from datetime import date, timedelta
+	try:
+		with open('file2.csv') as csv_file:
+			rows = list(map(lambda x: tuple(x.strip("\n").split(",")), csv_file.readlines()))
+			last_row = rows[-1][0]
+			year, month, day = list(map(int, last_row.split("-")))
+			date_obj = date(year, month, day)
+			date_to_collect_from = date_obj + timedelta(1)
+
+	except IndexError:
+		date_to_collect_from = OURA_FIRST_DAY
+
+	res = wrapper("GET", f"/v2/usercollection/daily_cardiovascular_age?start_date={date_to_collect_from}")
+	header = ["day", "vascular_age"]
+	write_csv_from_dicts(res["data"], header, "file2.csv")
 
 def main():
-	data = openapi_spec()
-	result = recursive_fun(data["paths"])
-	# print(json.dumps(result, indent=4))
+	daily_cardiovascular_age()
 
-	# for item, value in result.items():
-	# 	print(item)
-	# with open("new_format.json", "w+") as file:
-		# file.write(json.dumps(result, indent=4))
 
 if __name__ == "__main__":
 	main()
