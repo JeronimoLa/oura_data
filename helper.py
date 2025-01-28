@@ -1,5 +1,8 @@
 
-import json
+import json, re, time
+from configuraton import OURA_FIRST_DAY
+
+pattern = r'\/v2\/sandbox\/usercollection\/[^\s/{}]+'
 
 def example():
 	""" Example of hitting the api endpoint """
@@ -61,11 +64,22 @@ def recursive_fun(spec:dict, result=None, path=None):
     return result
 
 def main():
-    data = openapi_spec()
-    result = recursive_fun(data["paths"])
-    for path in result.keys():
-        print(path)
-    # print(json.dumps(result, indent=4))
+	data = openapi_spec()
+	result = recursive_fun(data["paths"])
+	
+
+	paths = [ re.search(pattern, path).group() for path in result.keys() if re.search(pattern, path) ]
+	urls = set(paths)
+
+	for index, url in enumerate(list(urls), start=1):
+		from main import wrapper, write_csv_from_dicts
+		print(f"{url}start_date?{OURA_FIRST_DAY}")
+		res = wrapper("GET", f"{url}?start_date={OURA_FIRST_DAY}")
+		keys = res["data"][0].keys()
+		write_csv_from_dicts(res["data"], list(keys), f"docs/csv/{index}.csv")
+		time.sleep(5)
+	print(len(urls))
+
 
 if __name__ == "__main__":
     main()
