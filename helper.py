@@ -17,10 +17,6 @@ def example():
 	response = requests.request('GET', url, headers=headers, params=params) 
 	print(response.text)
 
-def openapi_spec():
-	""" Returns the openapi spec in a dict object """
-	with open("docs/json/openapi-1.23.json", "r+") as file:
-		return json.loads(file.read())
 
 def recursive_enchancement(spec:dict, target="name", result=None):
 	if isinstance(spec, dict): # sometimes its a list 
@@ -63,6 +59,38 @@ def recursive_fun(spec:dict, result=None, path=None):
                 result[key] = type(value).__name__
     return result
 
+
+def write_csv_from_dicts(data, header, filename):
+    file_exists = os.path.isfile(filename)
+    
+    with open(filename, 'a' if file_exists else 'w', newline='') as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=header)
+        
+        if not file_exists:
+            writer.writeheader()
+        
+        writer.writerows(data)
+
+def daily_cardiovascular_age():
+	from datetime import date, timedelta
+	try:
+		with open('docs/csv/sandbox_daily_cardiovascular_age.csv') as csv_file:
+			rows = list(map(lambda x: tuple(x.strip("\n").split(",")), csv_file.readlines()))
+			last_row = rows[-1][0]
+			year, month, day = list(map(int, last_row.split("-")))
+			date_obj = date(year, month, day)
+			date_to_collect_from = date_obj + timedelta(1)
+
+	except IndexError:
+		date_to_collect_from = OURA_FIRST_DAY
+
+	res = wrapper("GET", f"/v2/usercollection/daily_cardiovascular_age?start_date={date_to_collect_from}")
+	# res = wrapper("GET", f"/v2/sandbox/usercollection/daily_cardiovascular_age?start_date=2022-01-25")
+
+	header = ["day", "vascular_age"]
+	write_csv_from_dicts(res["data"], header, "docs/csv/sandbox_daily_cardiovascular_age.csv")
+
+
 def main():
 	data = openapi_spec()
 	result = recursive_fun(data["paths"])
@@ -70,14 +98,17 @@ def main():
 
 	paths = [ re.search(pattern, path).group() for path in result.keys() if re.search(pattern, path) ]
 	urls = set(paths)
+	urls.remove("/v2/sandbox/usercollection/ring_configuration")
 
 	for index, url in enumerate(list(urls), start=1):
+		filename = re.search(r'[^/]+$', url).group()
 		from main import wrapper, write_csv_from_dicts
 		print(f"{url}start_date?{OURA_FIRST_DAY}")
 		res = wrapper("GET", f"{url}?start_date={OURA_FIRST_DAY}")
 		keys = res["data"][0].keys()
-		write_csv_from_dicts(res["data"], list(keys), f"docs/csv/{index}.csv")
-		time.sleep(5)
+		print(res["data"])
+		write_csv_from_dicts(res["data"], list(keys), f"docs/csv/test/{filename}.csv")
+		time.sleep(3)
 	print(len(urls))
 
 

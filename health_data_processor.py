@@ -1,6 +1,6 @@
 import csv, json, requests, time, os, re
 from configuraton import BASE_URL, CONFIG, OURA_FIRST_DAY, RING_CONFIG_URL
-from helper import recursive_fun
+from helper import recursive_fun, write_csv_from_dicts
 
 
 def wrapper(method:str, endpoint:str, **kwargs) -> requests:
@@ -13,7 +13,7 @@ def wrapper(method:str, endpoint:str, **kwargs) -> requests:
     headers = { 'Authorization': f'Bearer {CONFIG["token"]}' }   
     return requests.request(method, BASE_URL + endpoint, headers=headers).json()
 
-def api_specification() -> json:
+def api_specification() -> dict:
 	""" Returns the openapi spec in a dict object """
 	with open("docs/json/openapi-1.23.json", "r+") as file:
 		return json.loads(file.read())
@@ -25,27 +25,30 @@ def extract_unique_urls() -> set:
     urls.remove(RING_CONFIG_URL)
     return urls
 
-def load_tracker(): pass
+def load_tracker() -> dict:
+    try:
+        with open("data_tracker.json", "r+") as file:
+            return json.loads(file.read())
+    except FileNotFoundError:
+        open("data_tracker.json", "x")
+        return {}
 
-def create_tracker(): pass 
-
-def save_tracker(tracker): pass 
+def save_tracker(files, date_last_pulled): pass 
 
 def process_new_data(): pass 
 
 
 def initial_data_pull():
-    for index, url in enumerate(list(urls), start=1):
-        filename = re.search(r'[^/]+$', url).group()
-        from main import wrapper, write_csv_from_dicts
-        print(f"{url}start_date?{OURA_FIRST_DAY}")
+    filenames = [ re.search(r'[^/]+$', file).group() for file in extract_unique_urls() ]
+    tracker = load_tracker()
+
+    print(f"{url}start_date?{OURA_FIRST_DAY}")
+    for filename in filenames:
         res = wrapper("GET", f"{url}?start_date={OURA_FIRST_DAY}")
         keys = res["data"][0].keys()
-        print(res["data"])
-        write_csv_from_dicts(res["data"], list(keys), f"docs/csv/test/{filename}.csv")
-        time.sleep(3)
-    print(len(urls))
-
+        new_data = process_new_data(res["data"], keys)
+        write_csv_from_dicts(new_data, keys, f"docs/csv/test/{filename}.csv")
 
 if __name__ == "__main__":
-    print(extract_unique_urls())
+    # print(extract_unique_urls())
+    initial_data_pull()
