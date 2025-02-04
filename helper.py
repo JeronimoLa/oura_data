@@ -2,7 +2,6 @@
 import json, re, time
 from configuraton import OURA_FIRST_DAY
 
-pattern = r'\/v2\/sandbox\/usercollection\/[^\s/{}]+'
 
 def example():
 	""" Example of hitting the api endpoint """
@@ -90,27 +89,7 @@ def daily_cardiovascular_age():
 	header = ["day", "vascular_age"]
 	write_csv_from_dicts(res["data"], header, "docs/csv/sandbox_daily_cardiovascular_age.csv")
 
-
-def main():
-	data = openapi_spec()
-	result = recursive_fun(data["paths"])
-	
-
-	paths = [ re.search(pattern, path).group() for path in result.keys() if re.search(pattern, path) ]
-	urls = set(paths)
-	urls.remove("/v2/sandbox/usercollection/ring_configuration")
-
-	for index, url in enumerate(list(urls), start=1):
-		filename = re.search(r'[^/]+$', url).group()
-		from main import wrapper, write_csv_from_dicts
-		print(f"{url}start_date?{OURA_FIRST_DAY}")
-		res = wrapper("GET", f"{url}?start_date={OURA_FIRST_DAY}")
-		keys = res["data"][0].keys()
-		print(res["data"])
-		write_csv_from_dicts(res["data"], list(keys), f"docs/csv/test/{filename}.csv")
-		time.sleep(3)
-	print(len(urls))
-
+def main(): pass
 
 if __name__ == "__main__":
     main()

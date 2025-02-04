@@ -37,6 +37,7 @@ def save_tracker(files, date_last_pulled): pass
 
 def process_new_data(): pass 
 
+def daily_pull(): pass
 
 def initial_data_pull():
     filenames = [ re.search(r'[^/]+$', file).group() for file in extract_unique_urls() ]
@@ -46,8 +47,9 @@ def initial_data_pull():
     for filename in filenames:
         res = wrapper("GET", f"{url}?start_date={OURA_FIRST_DAY}")
         keys = res["data"][0].keys()
-        new_data = process_new_data(res["data"], keys)
+        new_data = process_new_data(res["data"])
         write_csv_from_dicts(new_data, keys, f"docs/csv/test/{filename}.csv")
+        time.sleep(500)
 
 if __name__ == "__main__":
     # print(extract_unique_urls())
