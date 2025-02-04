@@ -25,32 +25,40 @@ def extract_unique_urls() -> set:
     urls.remove(RING_CONFIG_URL)
     return urls
 
-def load_tracker() -> dict:
+def load_tracker(fieldnames) -> dict:
     try:
         with open("data_tracker.json", "r+") as file:
             return json.loads(file.read())
     except FileNotFoundError:
-        open("data_tracker.json", "x")
-        return {}
+        data = {file: {} for file in fieldnames}
+        with open("data_tracker.json", "w+") as file:
+            file.write(json.dumps(data, indent=4))
+    
 
-def save_tracker(files, date_last_pulled): pass 
+def save_tracker(files, date_last_pulled):
+    with open("data_tracker.json", "w+") as file:
+        file.write(json.dumps(files, indent=4))
+
+
+def initial_data_pull():
+    url_to_filename = { file: re.search(r'[^/]+$', file).group() for file in extract_unique_urls() }
+    tracker = load_tracker(url_to_filename.values())
+    for url, filename in url_to_filename.items():
+        print(f"{url}start_date?{OURA_FIRST_DAY}")
+        tracker[filename]["endpoint"] = url 
+        tracker[filename]["last_indexed"] = OURA_FIRST_DAY
+        res = wrapper("GET", f"{url}?start_date={OURA_FIRST_DAY}")
+        keys = res["data"][0].keys()
+        write_csv_from_dicts(res["data"], keys, f"docs/csv/test/{filename}.csv")
+
+    save_tracker(tracker, OURA_FIRST_DAY)
+    
+
+
+
 
 def process_new_data(): pass 
 
-def daily_pull(): pass
-
-def initial_data_pull():
-    filenames = [ re.search(r'[^/]+$', file).group() for file in extract_unique_urls() ]
-    tracker = load_tracker()
-
-    print(f"{url}start_date?{OURA_FIRST_DAY}")
-    for filename in filenames:
-        res = wrapper("GET", f"{url}?start_date={OURA_FIRST_DAY}")
-        keys = res["data"][0].keys()
-        new_data = process_new_data(res["data"])
-        write_csv_from_dicts(new_data, keys, f"docs/csv/test/{filename}.csv")
-        time.sleep(500)
 
 if __name__ == "__main__":
-    # print(extract_unique_urls())
     initial_data_pull()
