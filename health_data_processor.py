@@ -25,7 +25,7 @@ def extract_unique_urls() -> set:
     urls.remove(RING_CONFIG_URL)
     return urls
 
-def load_tracker(fieldnames) -> dict:
+def load_tracker(fieldnames=None) -> dict:
     try:
         with open("data_tracker.json", "r+") as file:
             return json.loads(file.read())
@@ -34,11 +34,9 @@ def load_tracker(fieldnames) -> dict:
         with open("data_tracker.json", "w+") as file:
             file.write(json.dumps(data, indent=4))
     
-
-def save_tracker(files, date_last_pulled):
+def save_tracker(updated_data):
     with open("data_tracker.json", "w+") as file:
-        file.write(json.dumps(files, indent=4))
-
+        file.write(json.dumps(updated_data, indent=4))
 
 def initial_data_pull():
     url_to_filename = { file: re.search(r'[^/]+$', file).group() for file in extract_unique_urls() }
@@ -52,13 +50,20 @@ def initial_data_pull():
         write_csv_from_dicts(res["data"], keys, f"docs/csv/test/{filename}.csv")
 
     save_tracker(tracker, OURA_FIRST_DAY)
-    
 
+def process_new_data():
+    from datetime import date, timedelta, datetime
 
-
-
-def process_new_data(): pass 
+    tracker = load_tracker()
+    last_indexed = tracker["sleep_time"]["last_indexed"]
+    year, month , day = map(int, last_indexed.split("-"))
+    date_obj = date(year, month, day)
+    date_to_collect_from = date_obj + timedelta(1)
+    endpoint = tracker["sleep_time"]["endpoint"]
+    res = wrapper("GET", f"{endpoint}?start_date={str(date_to_collect_from)}&end_date={date.today()-timedelta(1)}")
+    tracker["sleep_time"]["last_indexed"] = str(date_to_collect_from)
+    save_tracker(tracker)
 
 
 if __name__ == "__main__":
-    initial_data_pull()
+    process_new_data()

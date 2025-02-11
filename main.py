@@ -1,7 +1,7 @@
-from health_data_processor import health_data
+from health_data_processor import process_new_data
 
 def main():
-	health_data()
+	process_new_data()
 
 if __name__ == "__main__":
 	main()
