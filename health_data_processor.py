@@ -51,8 +51,11 @@ def initial_data_pull():
             res = wrapper("GET", formatted_url)
             keys = res["data"][0].keys()
             write_csv_from_dicts(res["data"], keys, f"docs/csv/{filename}.csv")
+            tracker[key]["status"] = "data pull complete"
         except Exception as e:
-            print(f"An error occurred: no data exists at {url}")
+            tracker[filename]["last_indexed"] = OURA_FIRST_DAY
+            tracker[filename]["status"] = "No data found"
+
     save_tracker(tracker)
 
 def process_new_data():
@@ -69,6 +72,7 @@ def process_new_data():
             file_path = f"docs/csv/test/{key}.csv"
             write_csv_from_dicts(res["data"], data_keys, file_path)
             tracker[key]["last_indexed"] = str(date_to_collect_from)
+            tracker[key]["status"] = "data pulled"
         except Exception as e:
             print(e)
             tracker[key]["last_indexed"] = str(date_obj)

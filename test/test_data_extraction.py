@@ -3,6 +3,8 @@ import unittest
 
 from health_data_processor import load_tracker, process_new_data
 
+# TODO: Fix unit tests to ensure data_tracker.json get updated correctly
+
 class TestDataPull(unittest.TestCase):
 
     def test_process_new_data(self):
