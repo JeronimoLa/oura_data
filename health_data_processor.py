@@ -50,8 +50,8 @@ def initial_data_pull():
         try:
             res = wrapper("GET", formatted_url)
             keys = res["data"][0].keys()
-            write_csv_from_dicts(res["data"], keys, f"docs/csv/{filename}.csv")
-            tracker[key]["status"] = "data pull complete"
+            write_csv_from_dicts(res["data"], keys, f"docs/csv/test/{filename}.csv")
+            tracker[filename]["status"] = "Init data pull complete"
         except Exception as e:
             tracker[filename]["last_indexed"] = OURA_FIRST_DAY
             tracker[filename]["status"] = "No data found"
@@ -75,7 +75,9 @@ def process_new_data():
             tracker[key]["status"] = "data pulled"
         except Exception as e:
             print(e)
-            tracker[key]["last_indexed"] = str(date_obj)
+            tracker[key]["last_indexed"] = None
+            tracker[key]["status"] = "Incomplete pull"
+
     save_tracker(tracker)
 
 if __name__ == "__main__":
