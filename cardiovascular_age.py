@@ -17,23 +17,38 @@ def vascular_age(start_date, end_date) -> list:
     return data
 
 def to_html(data:list) -> str:
-    html = '<table style="width:100%">\n'
+    html = """
+    <style>
+        p {
+            margin: 0;
+            padding: 0;
+        }
+        table, th, td {
+            border:1px solid black;
+        }
+    </style> """
+    html += '<table style="width:100%">\n'
 
     if isinstance(data, list):
         keys = data[0].keys()
+        html += '<tr>\n'
+        for key in keys:
+            html += f'<th>{key}</th>\n'
+        html += '</tr>\n'
+
+        for item in data:
+            values = list(item.values())
+            html += f"<tr>"
+            for i in range(len(values)):
+                html += f'<td>{values[i]}</td>'
+            html += f'</tr>\n'
+        html += '</table>'
+
+    elif isinstance(data, dict):
+        pass
     else:
-        print(f"Exiting...\nobj of type {type(data)} instead of list")
+        print(f"Exiting...\nobj of type {type(data)} instead of list or dict")
         sys.exit()
-
-    html += '<tr>\n'
-    for key in keys:
-        html += f'<th>{key}</th>\n'
-    html += '</tr>\n'
-
-    for item in data:
-        values = list(item.values())
-        html += f'<tr><td>{values[0]}</td><td>{values[1]}</td></tr>\n'
-    html += '</table>'
     return html
 
 def frequency_tracker(data:list) -> dict:
