@@ -1,28 +1,14 @@
-import sys, json
-import requests
+import json
 from datetime import datetime, date, timedelta
 
-
-from configuraton import CONFIG, OURA_FIRST_DAY
-from cardiovascular_age import to_html
-
-
-def sleep_data(start_date, end_date) -> list:
-    url = "https://api.ouraring.com/v2/usercollection/daily_sleep"
-    params={ 
-        'start_date': start_date, 
-        'end_date': end_date 
-    }
-    headers = {'Authorization': f'Bearer {CONFIG["token"]}'}
-    res = requests.request('GET', url, headers=headers, params=params).json()
-    return res["data"]
+from helper import to_html, request
 
 def find_weekday(object:dict) -> str:
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     weekday = datetime.strptime(object["day"], '%Y-%m-%d').date().weekday()
     return days_of_week[weekday]
 
-def clean_data(data) -> list:
+def transform_daily_sleep_data(data) -> list:
     metrics = [
         {
             "day": find_weekday(obj),
@@ -59,12 +45,10 @@ def find_smallest(data) -> list:
                 if int(v) < minimum:
                     minimum = v
                     current_key = k
-
         weakest_state[date] = {}
         weakest_state[date] = {current_key: obj.get(current_key)}
         minimums.append(weakest_state)
         weakest_state = {}
-
     return minimums
 
 def output_stats(metrics_data):
@@ -79,6 +63,11 @@ def output_stats(metrics_data):
 if __name__ == "__main__":
     todays_date = date.today()
     delta_time = todays_date-timedelta(7)
-    data = sleep_data(delta_time, todays_date)
-    cleaned_data = clean_data(data)
-    output_stats(cleaned_data)
+    # data = request("GET", "https://api.ouraring.com/v2/usercollection/daily_sleep", delta_time, todays_date)
+    # cleaned_data = transform_daily_sleep_data(data)
+    # output_stats(cleaned_data)
+
+    # url = "https://api.ouraring.com/v2/usercollection/sleep_time"
+    url = "https://api.ouraring.com/v2/usercollection/sleep"
+    sleep_data = request("GET", url, delta_time)
+    print(json.dumps(sleep_data, indent=4))
