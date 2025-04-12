@@ -6,3 +6,4 @@ docs/
 misc/
 __pycache__
 *.txt
+data_tracer.json
