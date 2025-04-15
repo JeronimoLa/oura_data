@@ -1,9 +1,18 @@
+# MISC
 .DS_Store
-.venv/
 .env
+data_tracer.json
+*.txt
+
+# Python Related
+.venv/
+.python-version
+__pycache__/
+
+# Project directories not needed
 bin/
 docs/
 misc/
-__pycache__
-*.txt
-data_tracer.json
+
+# Database
+oura.db
