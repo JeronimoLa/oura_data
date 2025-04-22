@@ -1,19 +1,26 @@
 
 import requests
-import json, re, time, os, csv
-
-from datetime import date
+import json, time, os, csv
+from typing import Optional
 from configuraton import CONFIG
 
-def request(method:str, endpoint:str, start_date:str, end_date=None) -> list:
-	if end_date is None:
-		end_date = date.today()
-	params={ 
-        'start_date': start_date, 
-        'end_date': end_date 
-    }
+def request(method:str, endpoint:str,
+			start_date: Optional[str] = None,
+			end_date: Optional[str] = None,
+			today_date_range: Optional[dict] = None) -> list:
+	# TODO: 
+	# 1. Rely on the urllib standard library instead of requests
+	# 2. Have the network requests handle exceptions
+	base = "https://api.ouraring.com"
+	if today_date_range is None:
+		params = { 
+			'start_date': start_date, 
+			'end_date': end_date 
+    	}
+	else:
+		params = today_date_range
 	headers = {'Authorization': f'Bearer {CONFIG["token"]}'}
-	res = requests.request('GET', endpoint, headers=headers, params=params).json()
+	res = requests.request(method, base+endpoint, headers=headers, params=params).json()
 	return res["data"]
 
 def to_html(data:list) -> str:
