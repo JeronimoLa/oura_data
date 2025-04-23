@@ -1,5 +1,5 @@
 from datetime import datetime, date, timedelta
-from helper import to_html, request
+from src.helper import to_html, request
 
 def find_weekday(object:dict) -> str:
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]

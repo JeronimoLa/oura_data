@@ -1,4 +1,4 @@
-from health_data_processor import process_new_data
+from src.health_data_processor import process_new_data
 
 def main():
 	process_new_data()

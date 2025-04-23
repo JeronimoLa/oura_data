@@ -1,8 +1,8 @@
 import json, re, requests
 from datetime import date, timedelta
 
-from configuraton import BASE_URL, CONFIG, OURA_FIRST_DAY, RING_CONFIG_URL, URL_PATTERN
-from helper import recursive_fun, write_csv_from_dicts
+from src.configuraton import BASE_URL, CONFIG, OURA_FIRST_DAY, RING_CONFIG_URL, URL_PATTERN
+from src.helper import recursive_fun, write_csv_from_dicts
 
 
 def wrapper(method:str, endpoint:str, **kwargs) -> json:

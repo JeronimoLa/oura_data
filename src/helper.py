@@ -1,8 +1,9 @@
 
 import requests
-import json, time, os, csv
+import ast, json, time, os, csv
+
 from typing import Optional
-from configuraton import CONFIG
+from src.configuraton import CONFIG
 
 def request(method:str, endpoint:str,
 			start_date: Optional[str] = None,
@@ -134,6 +135,42 @@ def list_files(parent_directory, current_filepath=""):
 		file_paths.append(parent_directory)	
 	return file_paths
 
+
+def tool():
+    # TODO bring in nested dict/list if they are nested inside a column
+    with open("docs/csv/daily_readiness.csv") as f:
+        csvReader = csv.DictReader(f) 
+        data = list(csvReader)
+
+    full_data = []
+    keys_to_remove = set()
+    for row in data:
+        my_dict = {}
+        for key, value in row.items():
+            if is_valid_dict_string(value):
+                temp_dict = ast.literal_eval(value)
+                if isinstance(temp_dict, dict):
+                    if key not in keys_to_remove:
+                        keys_to_remove.add(key)
+                    my_dict.update(temp_dict)
+
+        list(map(lambda x: row.pop(x, None), keys_to_remove))
+        temp = row | my_dict
+        full_data.append(temp)
+
+
+    for new_dict in full_data:
+        time.sleep(0.2)
+        print(json.dumps(new_dict, indent=4))
+ 
+def is_valid_dict_string(s):
+    try:
+        data = ast.literal_eval(s)
+        return True
+    except (ValueError, SyntaxError):
+        return False
+
+
 def main():
 	with open("docs/json/openapi-1.23.json", "r+") as file:
 		data = json.loads(file.read())
@@ -157,6 +194,7 @@ def main():
 	for file in list_files(data):
 		time.sleep(.2)
 		print(file)
+	tool()
 
 if __name__ == "__main__":
     main()

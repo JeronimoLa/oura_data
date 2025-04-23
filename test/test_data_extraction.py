@@ -1,7 +1,7 @@
 from datetime import date, timedelta, datetime
 import unittest
 
-from health_data_processor import load_tracker, process_new_data
+from src.health_data_processor import load_tracker, process_new_data
 
 # TODO: Fix unit tests to ensure data_tracker.json get updated correctly
 
