@@ -12,8 +12,8 @@ uv.lock
 
 # Project directories not needed
 bin/
-docs/
 misc/
+internal_docs/
 
 # Database
 oura.db
