@@ -8,6 +8,7 @@ data_tracer.json
 .venv/
 .python-version
 __pycache__/
+uv.lock
 
 # Project directories not needed
 bin/

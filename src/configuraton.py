@@ -1,6 +1,6 @@
 from dotenv import dotenv_values
 
-CONFIG = dotenv_values(".env")  
+CONFIG = dotenv_values("src/.env")  
 BASE_URL = "https://api.ouraring.com"
 OURA_FIRST_DAY = "2024-12-27"
 SANDBOX_RING_CONFIG_URL_SANDBOX = "/v2/sandbox/usercollection/ring_configuration"
