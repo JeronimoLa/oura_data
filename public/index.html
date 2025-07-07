@@ -8,18 +8,73 @@
         <link rel="stylesheet" href="styles.css">
     </head>
     <body>
-        <h1>Sleep Data</h1>
-        <div id="chart"></div>
+        <h1>🛌 Sleep Data Dashboard</h1>
+        <br>
+        <h3 id="date"></h3>
 
         <div class="container">
-            <div class="product"><div id="radial" class="chart-container"></div></div>
-            <div class="product"><div id="radial-1" class="chart-container"></div></div>
-            <div class="product"><div id="radial-2" class="chart-container"></div></div>
-            <div class="product"><div id="radial-3" class="chart-container"></div></div>
-            <div class="product"><div id="radial-4" class="chart-container"></div></div>
-            <div class="product"><div id="radial-5" class="chart-container"></div></div>
+            <div class="product">
+                <div id="radial" class="chart-container"></div>
+            </div>
+            <div class="product">
+                <div id="radial-1" class="chart-container"></div>
+            </div>
+            <div class="product">
+                <div id="radial-2" class="chart-container"></div>
+            </div>
+            <div class="product">
+                <div id="radial-3" class="chart-container"></div>
+            </div>
+            <div class="product">
+                <div id="radial-4" class="chart-container"></div>
+            </div>
         </div>
-    </body>
+        <!-- Render's Chart Data -->
+        <div id="chart"></div>
+        <br>
+        <h3 id="timeframe"></h3>
+        <br>
+        <div class="two-sections">
+          <!-- ========== Sleep Scores By Day ========== -->
+          <section class="table-section" aria-label="Sleep Scores by Day">
+            <h2>📊 Sleep Scores by Day</h2>
+              <div class="table-wrapper">
+                <table id="weekly-data" style="width:100%">
+                </table>
+              </div>
+          </section>
+          <!-- ========== Averages & Summary ========== -->
+          <section class="averages" aria-label="Averages and Summary">
+            <h2>📈 Averages</h2>
+            <ul id="averages">
+          </section>
+        </div>
+
+        <br>
+        <br>
+          <!-- ========== New Sections Below ========== -->
+          <section aria-label="Additional Sleep Metrics or Trends">
+            <h2 class="section-title">📉 Additional Metrics / Trends</h2>
+            <div
+              class="placeholder"
+              title="Add new charts, graphs, or content here"
+              style="height: 280px;"
+            >
+              + Insert new charts or data visualizations
+            </div>
+          </section>
+      
+          <section aria-label="Notes / Logs / Annotations">
+            <h2 class="section-title">📝 Notes & Annotations</h2>
+            <div
+              class="placeholder"
+              title="Add notes, logs, or annotations for sleep data"
+              style="height: 140px;"
+            >
+              + Add notes or comments here
+            </div>
+          </section>
+        </body>
 </html>
 
 
